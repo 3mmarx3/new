@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Secure Reward Portal</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- خطوط جوجل (Inter) لتصميم واقعي واحترافي -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- مكتبة الألعاب النارية -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ['"Inter"', "sans-serif"] },
+            colors: {
+              primary: "#0070ba", // لون احترافي يشبه تطبيقات الدفع
+              secondary: "#1ea1f2",
+              success: "#10b981",
+              darkText: "#0f172a",
+              lightBorder: "#e2e8f0",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        background-color: #ffffff; /* خلفية بيضاء نظيفة كأنها شاشة تطبيق */
+        color: #0f172a;
+        overflow-x: hidden;
+      }
+
+      /* أنيميشن زرار الكول تو أكشن */
+      @keyframes subtlePulse {
+        0% {
+          transform: scale(1);
+          box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+        }
+        70% {
+          transform: scale(1.03);
+          box-shadow: 0 0 0 12px rgba(16, 185, 129, 0);
+        }
+        100% {
+          transform: scale(1);
+          box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+        }
+      }
+      .btn-cta-animate {
+        animation: subtlePulse 2s infinite ease-in-out;
+      }
+
+      /* أنيميشن الأسئلة (دخول ناعم واحترافي) */
+      .step-panel {
+        display: none;
+        opacity: 0;
+      }
+      .step-active {
+        display: block;
+        animation: fadeInSlideUp 0.5s ease-out forwards;
+      }
+      @keyframes fadeInSlideUp {
+        0% {
+          opacity: 0;
+          transform: translateY(15px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* أنيميشن صندوق الهدايا (نبض هادئ) */
+      .gift-wrapper {
+        font-size: 7.5rem;
+        cursor: pointer;
+        display: inline-block;
+        animation: floatGentle 3s ease-in-out infinite;
+        user-select: none;
+        transition: transform 0.2s;
+      }
+      .gift-wrapper:active {
+        transform: scale(0.95);
+      }
+      @keyframes floatGentle {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+      .gift-opened {
+        animation: popFade 0.4s forwards;
+        pointer-events: none;
+      }
+      @keyframes popFade {
+        0% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.2);
+          opacity: 0.8;
+        }
+        100% {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+      }
+
+      /* صور الدولارات المتطايرة */
+      .cash-particle {
+        position: fixed;
+        bottom: -150px;
+        width: 75px;
+        height: auto;
+        z-index: 9999;
+        pointer-events: none;
+        animation: flyUpNatural 2.5s ease-out forwards;
+      }
+      @keyframes flyUpNatural {
+        0% {
+          transform: translateY(0) rotate(-15deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(-120vh) rotate(360deg);
+          opacity: 0;
+        }
+      }
+
+      /* انتقال التعليقات */
+      .comment-wrapper {
+        transition:
+          opacity 0.4s ease,
+          transform 0.4s ease;
+      }
+      .comment-hidden {
+        opacity: 0;
+        transform: translateX(-10px);
+      }
+      .comment-visible {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    </style>
+  </head>
+  <body class="min-h-screen flex flex-col text-slate-900 bg-white">
+    <!-- شريط الأمان العلوي (مثبت في الأعلى) -->
+    <div
+      class="fixed top-0 left-0 w-full bg-slate-800 text-slate-200 py-2.5 text-center text-xs md:text-sm font-semibold tracking-wide flex justify-center items-center gap-2 z-50 shadow-md"
+    >
+      <svg
+        class="w-4 h-4 text-green-400"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+          clip-rule="evenodd"
+        ></path>
+      </svg>
+      SECURE 256-BIT ENCRYPTED SESSION
+    </div>
+
+    <!-- حاوية التوسيط العمودي المثالي -->
+    <div
+      class="flex-1 flex flex-col justify-center items-center w-full min-h-screen pt-16 pb-8 px-4"
+    >
+      <!-- الحاوية الداخلية التي تجمع كل العناصر -->
+      <div class="w-full max-w-md flex flex-col">
+        <!-- شريط التقدم النظيف -->
+        <div
+          class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mb-8"
+        >
+          <div
+            id="progress-bar"
+            class="bg-primary h-1.5 w-1/3 transition-all duration-500 ease-in-out"
+          ></div>
+        </div>
+
+        <!-- المحتوى الرئيسي (الأسئلة/الصندوق) -->
+        <main
+          class="w-full relative z-10 flex flex-col text-center justify-center min-h-[350px]"
+        >
+          <!-- الخطوة 1 -->
+          <div id="step-1" class="step-panel step-active">
+            <h1
+              class="text-3xl md:text-4xl font-extrabold text-darkText mb-3 tracking-tight"
+            >
+              Pending Funds Available
+            </h1>
+            <p
+              class="text-slate-500 text-base md:text-lg mb-10 leading-relaxed"
+            >
+              You have a pending reward transfer. Would you like to initiate the
+              process now?
+            </p>
+
+            <div class="space-y-4">
+              <button
+                onclick="goToStep(2)"
+                class="w-full bg-primary hover:bg-blue-700 text-white font-bold py-4 md:py-5 rounded-2xl text-lg transition-colors flex justify-center items-center gap-2 shadow-lg shadow-blue-500/30"
+              >
+                Yes, Initiate Transfer
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="3"
+                    d="M14 5l7 7m0 0l-7 7m7-7H3"
+                  ></path>
+                </svg>
+              </button>
+              <button
+                onclick="goToStep(2)"
+                class="w-full bg-transparent hover:bg-slate-50 text-slate-500 font-semibold py-3 rounded-2xl text-md transition-colors"
+              >
+                Decline Offer
+              </button>
+            </div>
+          </div>
+
+          <!-- الخطوة 2 -->
+          <div id="step-2" class="step-panel">
+            <h1
+              class="text-3xl md:text-4xl font-extrabold text-darkText mb-3 tracking-tight"
+            >
+              Select Transfer Purpose
+            </h1>
+            <p
+              class="text-slate-500 text-base md:text-lg mb-10 leading-relaxed"
+            >
+              For verification, please select how you plan to use these funds.
+            </p>
+
+            <div class="space-y-4">
+              <button
+                onclick="goToStep(3)"
+                class="w-full bg-slate-50 border-2 border-slate-200 hover:border-primary hover:bg-blue-50 text-darkText font-bold py-5 px-6 rounded-2xl text-lg transition-all flex justify-between items-center group"
+              >
+                <span class="flex items-center gap-3">🛍️ Online Shopping</span>
+                <div
+                  class="w-6 h-6 rounded-full border-2 border-slate-300 group-hover:border-primary group-hover:bg-primary transition-colors flex items-center justify-center"
+                ></div>
+              </button>
+              <button
+                onclick="goToStep(3)"
+                class="w-full bg-slate-50 border-2 border-slate-200 hover:border-primary hover:bg-blue-50 text-darkText font-bold py-5 px-6 rounded-2xl text-lg transition-all flex justify-between items-center group"
+              >
+                <span class="flex items-center gap-3">💳 Pay Bills / Debt</span>
+                <div
+                  class="w-6 h-6 rounded-full border-2 border-slate-300 group-hover:border-primary group-hover:bg-primary transition-colors flex items-center justify-center"
+                ></div>
+              </button>
+            </div>
+          </div>
+
+          <!-- الخطوة 3: الصندوق والنتيجة -->
+          <div id="step-3" class="step-panel">
+            <div id="gift-intro">
+              <div
+                class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-green-100 text-success mb-4 shadow-sm"
+              >
+                <svg
+                  class="w-7 h-7"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="3"
+                    d="M5 13l4 4L19 7"
+                  ></path>
+                </svg>
+              </div>
+              <h1
+                class="text-3xl md:text-4xl font-extrabold text-darkText mb-2"
+              >
+                Account Verified
+              </h1>
+              <p class="text-slate-500 text-base mb-8">
+                Tap the secure box below to reveal your final amount.
+              </p>
+            </div>
+
+            <div class="my-2" onclick="openGift()">
+              <div id="the-gift" class="gift-wrapper">🎁</div>
+            </div>
+
+            <!-- زرار الـ CTA والصورة لملء الفراغ -->
+            <div id="final-cta" class="hidden mt-2">
+              <!-- الصورة الاحتفالية التي تظهر بعد فتح الصندوق -->
+              <img
+                src="./assets/imges/iphone.png"
+                alt="Reward Unlocked"
+                class="mx-auto h-auto object-contain mb-8"
+              />
+
+              <a
+                href="#"
+                class="btn-cta-animate block w-full bg-success hover:bg-green-600 text-white font-extrabold py-5 rounded-2xl text-xl tracking-wide transition-colors shadow-lg shadow-green-500/40"
+              >
+                COMPLETE TRANSFER
+              </a>
+
+              <div
+                class="mt-6 flex items-center justify-center gap-5 text-xs font-bold text-slate-400 uppercase tracking-wider"
+              >
+                <span class="flex items-center gap-1.5"
+                  ><svg
+                    class="w-4 h-4 text-slate-400"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                  Secure SSL</span
+                >
+                <span class="flex items-center gap-1.5"
+                  ><svg
+                    class="w-4 h-4 text-slate-400"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                  Verified</span
+                >
+              </div>
+            </div>
+          </div>
+        </main>
+
+        <!-- خط فاصل شيك بين الأسئلة والتعليقات -->
+        <hr class="border-t-2 border-slate-100 my-8" />
+
+        <!-- قسم التعليقات (منفصل تحت الخط ومرتب) -->
+        <section class="w-full">
+          <h3
+            class="text-slate-500 font-bold text-sm mb-5 flex justify-between items-center"
+          >
+            <span class="uppercase tracking-wider text-xs"
+              >Recent Activity</span
+            >
+            <span
+              class="flex items-center gap-2 text-xs bg-green-50 text-green-600 px-2.5 py-1 rounded-full border border-green-100"
+            >
+              <span
+                class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"
+              ></span>
+              Live
+            </span>
+          </h3>
+
+          <div class="relative min-h-[110px]">
+            <div
+              id="comment-display"
+              class="comment-wrapper comment-visible w-full absolute top-0 left-0"
+            >
+              <!-- يتم حقن التعليقات هنا بواسطة الجافاسكريبت -->
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script>
+      // --- 1. التنقل بين الأسئلة ---
+      function goToStep(step) {
+        document.querySelector(".step-active").classList.remove("step-active");
+
+        const bar = document.getElementById("progress-bar");
+        if (step === 2) bar.style.width = "66%";
+        if (step === 3) bar.style.width = "100%";
+
+        document.getElementById(`step-${step}`).classList.add("step-active");
+
+        // تشغيل الفاير ووركس بمجرد ما يوصل لخطوة الصندوق (قبل ما يضغط)
+        if (step === 3) {
+          setTimeout(triggerFireworks, 300);
+        }
+      }
+
+      // --- 2. الصندوق وتأثيرات الفلوس ---
+      function openGift() {
+        const gift = document.getElementById("the-gift");
+        if (gift.classList.contains("gift-opened")) return;
+
+        gift.classList.add("gift-opened");
+
+        setTimeout(() => {
+          // إخفاء الصندوق وإظهار الصورة والزرار
+          gift.style.display = "none";
+          document.getElementById("gift-intro").style.display = "none";
+          document.getElementById("final-cta").classList.remove("hidden");
+
+          // إطلاق صور الدولارات المتطايرة
+          triggerMoneyExplosion();
+        }, 350);
+      }
+
+      // دالة الألعاب النارية (Confetti)
+      function triggerFireworks() {
+        var duration = 2 * 1000;
+        var animationEnd = Date.now() + duration;
+        var defaults = {
+          startVelocity: 25,
+          spread: 360,
+          ticks: 60,
+          zIndex: 9999,
+          colors: ["#0070ba", "#10b981", "#ffffff"],
+        };
+
+        function randomInRange(min, max) {
+          return Math.random() * (max - min) + min;
+        }
+
+        var interval = setInterval(function () {
+          var timeLeft = animationEnd - Date.now();
+
+          if (timeLeft <= 0) {
+            return clearInterval(interval);
+          }
+
+          var particleCount = 40 * (timeLeft / duration);
+          confetti(
+            Object.assign({}, defaults, {
+              particleCount,
+              origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+            }),
+          );
+          confetti(
+            Object.assign({}, defaults, {
+              particleCount,
+              origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+            }),
+          );
+        }, 250);
+      }
+
+      // دالة الفلوس المتطايرة (باستخدام صورتك المخصصة)
+      function triggerMoneyExplosion() {
+        for (let i = 0; i < 35; i++) {
+          setTimeout(() => {
+            const cashImg = document.createElement("img");
+
+            // مسار صورة الدولار الخاص بك
+            cashImg.src = "./assets/imges/dolar.png";
+
+            cashImg.className = "cash-particle";
+            cashImg.style.left = Math.random() * 90 + "vw";
+            cashImg.style.animationDuration = Math.random() * 1.5 + 1.5 + "s";
+            document.body.appendChild(cashImg);
+
+            setTimeout(() => cashImg.remove(), 3000);
+          }, i * 60);
+        }
+      }
+
+      // --- 3. نظام التعليقات الواقعي ---
+      const comments = [
+        {
+          name: "Michael R.",
+          text: "Transfer hit my account instantly. Unreal!",
+          time: "Just now",
+          img: "11",
+        },
+        {
+          name: "Sarah Jenkins",
+          text: "Thought it was a glitch, but it's totally legit.",
+          time: "1m ago",
+          img: "44",
+        },
+        {
+          name: "David T.",
+          text: "Used it to pay my credit card statement 🙌",
+          time: "Just now",
+          img: "33",
+        },
+        {
+          name: "Emma Wilson",
+          text: "Process was super smooth. Thanks!",
+          time: "2m ago",
+          img: "22",
+        },
+        {
+          name: "Alex B.",
+          text: "Confirming this works in 2026. LETS GOOO 🚀",
+          time: "Just now",
+          img: "55",
+        },
+      ];
+
+      let commentIndex = 0;
+      const commentDisplay = document.getElementById("comment-display");
+
+      function updateCommentUI() {
+        const c = comments[commentIndex];
+        commentDisplay.innerHTML = `
+                <div class="flex items-start gap-4">
+                    <img src="https://i.pravatar.cc/150?img=${c.img}" class="w-11 h-11 rounded-full object-cover shadow-sm" alt="User">
+                    <div class="flex-1">
+                        <div class="bg-slate-50 p-3 rounded-2xl rounded-tl-none border border-slate-100">
+                            <h4 class="font-bold text-darkText text-sm mb-0.5">${c.name}</h4>
+                            <p class="text-slate-600 text-sm leading-relaxed">${c.text}</p>
+                        </div>
+                        <div class="flex gap-4 mt-1.5 ml-2 text-xs font-semibold text-slate-400">
+                            <span class="hover:text-primary cursor-pointer transition-colors">Like</span>
+                            <span class="hover:text-primary cursor-pointer transition-colors">Reply</span>
+                            <span class="font-medium text-slate-400">${c.time}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+      }
+
+      function runLiveComments() {
+        updateCommentUI();
+
+        setInterval(() => {
+          commentDisplay.classList.remove("comment-visible");
+          commentDisplay.classList.add("comment-hidden");
+
+          setTimeout(() => {
+            commentIndex = (commentIndex + 1) % comments.length;
+            updateCommentUI();
+
+            commentDisplay.classList.remove("comment-hidden");
+            commentDisplay.classList.add("comment-visible");
+          }, 400);
+        }, 3000);
+      }
+
+      window.onload = runLiveComments;
+    </script>
+  </body>
+</html>
