@@ -106,24 +106,67 @@
     </style>
   </head>
   <body class="min-h-screen flex flex-col text-slate-900 bg-white">
+    <!-- شريط الإعلان الثابت بالأعلى -->
     <div
-      class="fixed top-0 left-0 w-full bg-slate-900 text-slate-200 py-2.5 text-center text-xs md:text-sm font-semibold tracking-wide flex justify-center items-center gap-2 z-50 shadow-md"
+      class="fixed top-0 left-0 w-full bg-slate-900 text-slate-200 py-2 text-center text-xs md:text-sm font-semibold tracking-wide flex justify-center items-center gap-2 z-50 shadow-md"
     >
       <i class="fa-solid fa-shield-halved text-green-400"></i>
-      SECURE 256-BIT ENCRYPTED SESSION • LIMITED TIME REWARD
+      SECURE SESSION • LIMITED REWARD
     </div>
 
-    <div
-      class="flex-1 flex flex-col justify-center items-center w-full min-h-screen pt-16 pb-8 px-4"
+    <!-- الهيدر الثابت وبداخله شريط النسب (Progress Bar) -->
+    <header
+      class="fixed top-[37px] md:top-[41px] left-0 w-full bg-white/95 backdrop-blur-md z-40 border-b border-slate-200 shadow-sm"
     >
-      <div class="w-full max-w-md flex flex-col">
-        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden mb-8">
+      <div class="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
+        <div class="flex items-center gap-2">
           <div
-            id="progress-bar"
-            class="bg-primary h-2 w-1/3 transition-all duration-500 ease-in-out"
-          ></div>
+            class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-white font-bold shadow-md"
+          >
+            <i class="fa-solid fa-shield text-sm"></i>
+          </div>
+          <span
+            class="font-extrabold text-lg tracking-tight text-darkText"
+          ></span>
         </div>
 
+        <!-- الأيقونات جنب بعض بدون خلفية أو حدود -->
+        <div class="flex items-center gap-1">
+          <button
+            class="w-9 h-9 flex items-center justify-center text-slate-700 hover:text-primary transition-colors text-lg"
+            title="حساب المستخدم"
+          >
+            <i class="fa-solid fa-user-shield"></i>
+          </button>
+          <button
+            class="w-9 h-9 flex items-center justify-center text-slate-700 hover:text-primary transition-colors text-lg"
+            title="التنبيهات"
+          >
+            <i class="fa-solid fa-bell"></i>
+          </button>
+          <button
+            class="w-9 h-9 flex items-center justify-center text-slate-700 hover:text-primary transition-colors text-xl"
+            title="القائمة"
+          >
+            <i class="fa-solid fa-bars-staggered"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- شريط النسب المميز المدمج في أسفل الهيدر الثابت -->
+      <div class="w-full bg-slate-100 h-1.5 overflow-hidden">
+        <div
+          id="progress-bar"
+          class="bg-primary h-1.5 w-1/3 transition-all duration-500 ease-in-out"
+        ></div>
+      </div>
+    </header>
+
+    <!-- تم زيادة المسافة العلوية pt-28 عشان المحتوى ميبقاش لازق في الهيدر -->
+    <div
+      class="flex-1 flex flex-col justify-center items-center w-full min-h-screen pt-28 pb-8 px-4"
+    >
+      <div class="w-full max-w-md flex flex-col">
         <main
           class="w-full relative z-10 flex flex-col text-center justify-center min-h-[350px]"
         >
@@ -168,30 +211,19 @@
               For security verification, please select how you plan to use these
               funds.
             </p>
+            <!-- الأيقونات اتشالت والكلام بقى في النص (justify-center) -->
             <div class="space-y-4">
               <button
                 onclick="goToStep(3)"
-                class="w-full bg-slate-50 border-2 border-slate-200 hover:border-primary hover:bg-blue-50 text-darkText font-bold py-4 px-6 rounded-2xl text-lg transition-all flex justify-between items-center group shadow-sm"
+                class="w-full bg-slate-50 border-2 border-slate-200 hover:border-primary hover:bg-blue-50 text-darkText font-bold py-4 px-6 rounded-2xl text-lg transition-all flex justify-center items-center group shadow-sm"
               >
-                <span class="flex items-center gap-3"
-                  ><i class="fa-solid fa-bag-shopping text-primary"></i> Online
-                  Shopping & Tech</span
-                >
-                <div
-                  class="w-6 h-6 rounded-full border-2 border-slate-300 group-hover:border-primary group-hover:bg-primary transition-colors flex items-center justify-center"
-                ></div>
+                <span>Online Shopping & Tech</span>
               </button>
               <button
                 onclick="goToStep(3)"
-                class="w-full bg-slate-50 border-2 border-slate-200 hover:border-primary hover:bg-blue-50 text-darkText font-bold py-4 px-6 rounded-2xl text-lg transition-all flex justify-between items-center group shadow-sm"
+                class="w-full bg-slate-50 border-2 border-slate-200 hover:border-primary hover:bg-blue-50 text-darkText font-bold py-4 px-6 rounded-2xl text-lg transition-all flex justify-center items-center group shadow-sm"
               >
-                <span class="flex items-center gap-3"
-                  ><i class="fa-solid fa-credit-card text-primary"></i> Personal
-                  Bills / Savings</span
-                >
-                <div
-                  class="w-6 h-6 rounded-full border-2 border-slate-300 group-hover:border-primary group-hover:bg-primary transition-colors flex items-center justify-center"
-                ></div>
+                <span>Personal Bills / Savings</span>
               </button>
             </div>
           </div>
@@ -218,7 +250,7 @@
 
             <a
               href="#"
-              class="btn-cta-animate block w-full bg-success hover:bg-green-600 text-white font-extrabold py-5 rounded-2xl text-xl tracking-wide transition-all shadow-xl shadow-green-500/40 text-center"
+              class="btn-cta-animate block w-full bg-success hover:bg-green-600 text-white font-extrabold py-5 rounded-2xl tracking-wide transition-all shadow-xl shadow-green-500/40 text-center"
             >
               COMPLETE TRANSFER NOW <i class="fa-solid fa-rocket ml-2"></i>
             </a>
@@ -363,7 +395,7 @@
         },
         {
           name: "David T.",
-          text: "Used it to claim my reward 🙌",
+          text: "Used it to claim my reward",
           time: "Just now",
           img: "33",
         },
@@ -375,7 +407,7 @@
         },
         {
           name: "Alex B.",
-          text: "Confirming this works in 2026. LETS GOOO 🚀",
+          text: "Confirming this works in 2026. LETS GOOO",
           time: "Just now",
           img: "55",
         },
